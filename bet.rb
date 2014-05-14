@@ -4,9 +4,9 @@ $kUsername = ""
 $kPassword = ""
 $kApiKey = ""
 
-$kDuplications = 23	#the amount of consecutive loses you can tolerate.
+$kDuplications = 17	#the amount of consecutive loses you can tolerate.
 					#Higher lowers income but minizes chances of going broke
-$kMinBalance = 0.05	#If balance goes any lower than this the bot will stop
+$kMinBalance = 0.00	#If balance goes any lower than this the bot will stop
 
 $kSatoshi = 0.00000001
 session = ""
@@ -53,6 +53,10 @@ if (response.success?)
 	maxValue = minValue * (2 ** $kDuplications)
 	startValue = minValue
 
+	if (minValue < $kSatoshi)
+		abort("The min bet is too low. You need more balance to be able to do this amount of duplications")
+	end
+
 	startDate = Time.now
 	puts "Logged in!"
 	puts "#{lastBalance}"
@@ -66,7 +70,6 @@ if (response.success?)
 			puts "Timeout!"
 			timeout = true
 		end
-		puts "#{timeout}"
 		if (!timeout && response.success? && response["StartingBalance"])
 
 			response = JSON.parse(response)
@@ -89,9 +92,9 @@ if (response.success?)
 				end
 			else
 				#puts "Last bet is a win"
-				minValue = lastBalance / (2 ** (duplications + 1));
+				minValue = lastBalance / (2 ** ($kDuplications + 1));
 				startValue = minValue
-				maxValue = minValue * (2 ** duplications)
+				maxValue = minValue * (2 ** $kDuplications)
 			end
 
 			if (newBalance < $kMinBalance)
